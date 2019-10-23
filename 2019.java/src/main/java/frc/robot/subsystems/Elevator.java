@@ -13,7 +13,7 @@ import frc.robot.RobotMap;
 
 /**
  * PID Controlled Elevator w/ Talon SRX (2019)
- * Author Matt Ruane (207)
+ * Author Fernando Matias (207)
  */
 public class Elevator extends Subsystem {
 
