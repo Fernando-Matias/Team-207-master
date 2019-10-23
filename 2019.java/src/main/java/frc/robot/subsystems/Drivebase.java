@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import frc.utility.DummyPIDOutput;
 
 /**
- * Author Matt Ruane (207)
+ * Author Fernando Matias (207)
  */
 public class Drivebase extends Subsystem {
 
@@ -38,36 +38,37 @@ public class Drivebase extends Subsystem {
   public static Drivebase getInstance() {
     return instance;
   }
-
+  // defining variables
+  //Drive train
   public static DefaultDriveTalonSRX mDrive_Left_Master, mDrive_Left_B, mDrive_Left_C, mDrive_Right_Master, mDrive_Right_B, mDrive_Right_C;
-
+  //PID output power for motors variables
   private static double leftpow_, rightpow_;
-
+  //Drive train class
   public static DifferentialDrive mDrive;
-
+  //Shifters
   private static Solenoid mShifter_High, mShifter_Low;
-
+  //Dummy output (does not lead to any hardware)
   public static DummyPIDOutput PIDturnOutput, PIDleftOutput, PIDrightOutput;
-
+  //Velocity & base lock control for K
   protected static final int kVelocityControlSlot = 0;
   protected static final int kBaseLockControlSlot = 1;
-
+  //gyro & encoder variables
   private double TurnrateCurved, mLastHeadingErrorDegrees, leftvelo_,  rightvelo_, left_distance, right_distance, time;
   public double left_encoder_prev_distance_, right_encoder_prev_distance_, leftveloIPS_, rightveloIPS_, veloIPS_;
-
+  //PID variables
   public static enum DriveControlState {OPEN_LOOP, BASE_LOCKED, VELOCITY_SETPOINT, VELOCITY_HEADING_CONTROL, PATH_FOLLOWING_CONTROL }
-  
+  //PID
   private static DriveControlState driveControlState_;
-  
+  //PID
   private VelocityHeadingSetpoint velocityHeadingSetpoint_;
-
+  //Gyro
   private AHRS ahrs;
-
+  //PID
   public static PIDController PIDturn;
-
+  //PID
   private static AdaptivePurePursuitController pathFollowingController_;
   private static SynchronousPID velocityHeadingPid_;
-
+  //Gyro
   private Rotation2d gyro_angle;
   private RigidTransform2d odometry;
   private RigidTransform2d.Delta velocity;
@@ -75,6 +76,7 @@ public class Drivebase extends Subsystem {
 
 
   public Drivebase() {
+    //drive train variables
     mDrive_Left_Master = new DefaultDriveTalonSRX(RobotMap.mDrive_Left_A_ID);
     mDrive_Left_B = new DefaultDriveTalonSRX(RobotMap.mDrive_Left_B_ID);
     mDrive_Left_C = new DefaultDriveTalonSRX(RobotMap.mDrive_Left_C_ID);
@@ -82,48 +84,58 @@ public class Drivebase extends Subsystem {
     mDrive_Right_B = new DefaultDriveTalonSRX(RobotMap.mDrive_Right_B_ID);
     mDrive_Right_C = new DefaultDriveTalonSRX(RobotMap.mDrive_Right_C_ID);
 
+    //Left encoder values
     mDrive_Left_Master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, Constants.kTimeoutms);
     mDrive_Left_Master.setSensorPhase(false);
     mDrive_Left_Master.setInverted(false);
     mDrive_Left_B.setInverted(false);
     mDrive_Left_C.setInverted(false);
 
+    //Right encoder values
     mDrive_Right_Master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, Constants.kTimeoutms);
     mDrive_Right_Master.setSensorPhase(false);
     mDrive_Right_Master.setInverted(false);
     mDrive_Right_B.setInverted(false);
     mDrive_Right_C.setInverted(false);
 
+    //slaves
     mDrive_Left_B.set(ControlMode.Follower, RobotMap.mDrive_Left_A_ID);
     mDrive_Left_C.set(ControlMode.Follower, RobotMap.mDrive_Left_A_ID);
     mDrive_Right_B.set(ControlMode.Follower, RobotMap.mDrive_Right_A_ID);
     mDrive_Right_C.set(ControlMode.Follower, RobotMap.mDrive_Right_A_ID);
 
+    //Left PID assignments
     mDrive_Left_Master.config_kP(kVelocityControlSlot, Constants.kDriveVelocityKp);
     mDrive_Left_Master.config_kI(kVelocityControlSlot, Constants.kDriveVelocityKi);
     mDrive_Left_Master.config_kD(kVelocityControlSlot, Constants.kDriveVelocityKd);
     mDrive_Left_Master.config_kF(kVelocityControlSlot, Constants.kDriveVelocityKf);
     mDrive_Left_Master.config_IntegralZone(kVelocityControlSlot, Constants.Drive_kIzone);
 
+    //Right PID assignments
     mDrive_Right_Master.config_kP(kVelocityControlSlot, Constants.kDriveVelocityKp);
     mDrive_Right_Master.config_kI(kVelocityControlSlot, Constants.kDriveVelocityKi);
     mDrive_Right_Master.config_kD(kVelocityControlSlot, Constants.kDriveVelocityKd);
     mDrive_Right_Master.config_kF(kVelocityControlSlot, Constants.kDriveVelocityKf);
     mDrive_Right_Master.config_IntegralZone(kVelocityControlSlot, Constants.Drive_kIzone);
 
+    //PID setting
     velocityHeadingPid_ = new SynchronousPID(Constants.kDriveHeadingVelocityKp, Constants.kDriveHeadingVelocityKi, Constants.kDriveHeadingVelocityKd);
     velocityHeadingPid_.setOutputRange(-30, 30);
     
+    //Drive train code diffreential drive
     mDrive = new DifferentialDrive(mDrive_Left_Master, mDrive_Right_Master);
     mDrive.setSafetyEnabled(false);
     
+    //shifters
     mShifter_Low = new Solenoid(RobotMap.mPCM_A, RobotMap.mShift_Low_ID);
     mShifter_High = new Solenoid(RobotMap.mPCM_B, RobotMap.mShift_High_ID);
 
+    //NAVX
     ahrs = new AHRS(SerialPort.Port.kMXP);
-
+    //establishing dummpy PID
     PIDturnOutput = new DummyPIDOutput();
 
+    //PID range and tolerances
     PIDturn = new PIDController(Constants.Turn_kP, Constants.Turn_kI, Constants.Turn_kD, Constants.Turn_kF, ahrs, PIDturnOutput, 0.02);
     PIDturn.setInputRange(-180.0,  180.0);
     PIDturn.setOutputRange(-0.65, 0.65);
@@ -131,23 +143,28 @@ public class Drivebase extends Subsystem {
     PIDturn.setContinuous(true);
   }
   public void UpShift() {
+    //High gear
     mShifter_High.set(Constants.On);
     mShifter_Low.set(Constants.Off);
     Constants.CURRENT_GEAR = Constants.HIGH_GEAR;
   }
   public void DownShift() {
+    //Low Gear
     mShifter_High.set(Constants.Off);
     mShifter_Low.set(Constants.On);
     Constants.CURRENT_GEAR = Constants.LOW_GEAR;
   }
   public void tank(double left, double right) {
+    //changing to tank drive
     mDrive.tankDrive(left, right);
   }
   public void curvature(double throttleaxis, double turnaxis) {
+    //Turning rate 
     TurnrateCurved = (Constants.kTurnrateCurve * Math.pow(turnaxis, 3)+(1-Constants.kTurnrateCurve)*turnaxis*Constants.kTurnrateLimit);
     mDrive.curvatureDrive(throttleaxis, TurnrateCurved, true);
   }
   /* PURE PURSUIT */
+  //auto
   public void setVelocitySetpoint(double left_inches_per_sec, double right_inches_per_sec) {
     configureTalonsForSpeedControl();
     updateVelocitySetpoint(left_inches_per_sec, right_inches_per_sec);
