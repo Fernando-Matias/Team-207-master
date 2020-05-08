@@ -8,22 +8,22 @@
 package frc.robot.Auto.AutoCommands;
 
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+  import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+  import java.util.ArrayList;
+  import java.util.Arrays;
+  import java.util.List;
 
-import frc.robot.subsystems.Drivebase;
-import frc.utility.PurePursuit.Path;
-import frc.utility.PurePursuit.Path.Waypoint;
-import frc.utility.PurePursuit.Rotation2d;
-import frc.utility.PurePursuit.Translation2d;
-import frc.utility.PurePursuit.RigidTransform2d;
-import frc.utility.PurePursuit.Kinematics;
-import frc.robot.RobotState;
-import frc.robot.Auto.AutoPaths;
-import edu.wpi.first.wpilibj.Timer;
+  import frc.robot.subsystems.Drivebase;
+  import frc.utility.PurePursuit.Path;
+  import frc.utility.PurePursuit.Path.Waypoint;
+  import frc.utility.PurePursuit.Rotation2d;
+  import frc.utility.PurePursuit.Translation2d;
+  import frc.utility.PurePursuit.RigidTransform2d;
+  import frc.utility.PurePursuit.Kinematics;
+  import frc.robot.RobotState;
+  import frc.robot.Auto.AutoPaths;
+  import edu.wpi.first.wpilibj.Timer;
 
 public class PathFollower extends Command {
 

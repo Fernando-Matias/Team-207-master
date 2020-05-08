@@ -103,7 +103,7 @@ public class Constants {
 
     public static double kPathFollowingLookahead = 72.0; // inches
     public static double kPathFollowingMaxVel = 120.0; // inches/sec
-    public static double kPathFollowingMaxAccel = 100.0; // inches/sec^2
+    public static double kPathFollowingMaxAccel = 50.0; // inches/sec^2
     
     public static double kLooperDt = 0.01;
     

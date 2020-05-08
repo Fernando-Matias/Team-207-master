@@ -166,23 +166,25 @@ public class Drivebase extends Subsystem {
   /* PURE PURSUIT */
   //auto
   public void setVelocitySetpoint(double left_inches_per_sec, double right_inches_per_sec) {
-    configureTalonsForSpeedControl();
+    configureMotorsForSpeedControl();
     updateVelocitySetpoint(left_inches_per_sec, right_inches_per_sec);
   }
   public void setVelocityHeadingSetpoint(double forward_inches_per_sec, Rotation2d headingSetpoint) {
-  configureTalonsForSpeedControl();
-  velocityHeadingPid_.reset();
-  velocityHeadingSetpoint_ = new VelocityHeadingSetpoint(forward_inches_per_sec, forward_inches_per_sec, headingSetpoint);
-  updateVelocityHeadingSetpoint();
+    configureMotorsForSpeedControl();
+    velocityHeadingPid_.reset();
+    velocityHeadingSetpoint_ = new VelocityHeadingSetpoint(forward_inches_per_sec, forward_inches_per_sec, headingSetpoint);
+    updateVelocityHeadingSetpoint();
   }
+
   public void followPath(Path path, boolean reversed) {
-  configureTalonsForSpeedControl();
-  velocityHeadingPid_.reset();
-  pathFollowingController_ = new AdaptivePurePursuitController(Constants.kPathFollowingLookahead,
+    configureMotorsForSpeedControl();
+    velocityHeadingPid_.reset();
+    pathFollowingController_ = new AdaptivePurePursuitController(Constants.kPathFollowingLookahead,
     Constants.kPathFollowingMaxAccel, Constants.kLooperDt, path, reversed, 0.25);
-  updatePathFollower();
+    updatePathFollower();
   }
-  private void configureTalonsForSpeedControl() {
+  
+  private void configureMotorsForSpeedControl() {
     mDrive_Left_Master.set(ControlMode.Velocity, 0.0);
     mDrive_Left_Master.selectProfileSlot(kVelocityControlSlot, 0);
     mDrive_Left_Master.configAllowableClosedloopError(0, Constants.kDriveVelocityAllowableError);

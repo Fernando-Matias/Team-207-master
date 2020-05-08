@@ -32,8 +32,8 @@ public class Robot extends TimedRobot {
     elevator.zeroElevatorEncoder();
     drivebase.setCoast();
 
-    autoProgram.addDefault("PathA", new PathFollower(paths.getFirstPath()));
-    autoProgram.addObject("PathB", new PathFollower(paths.getSecondPath()));
+    autoProgram.setDefaultOption("PathA", new PathFollower(paths.getFirstPath()));
+    autoProgram.setDefaultOption("PathB", new PathFollower(paths.getSecondPath()));
 
     SmartDashboard.putData("Selected Auto", autoProgram);
   }
